@@ -8,10 +8,21 @@ import csv
     -Finish TASK 3 (pretty general cause we havent started yet)
     
     -Make testing on the test_Case.py using unnittest
-    """
+"""
+def csv_to_dict(filename):
+    course_dict = []
 
+    with open(filename, "r", newline = '') as csv_file:
+        my_reader = csv.DictReader(csv_file)
+        for row in my_reader:
+            course_dict.append(row)
+        return course_dict
 
+course_data = csv_to_dict('course_catalog.csv')
+university_data = csv_to_dict('university_data.csv')
 
+for row in course_data:
+    print(row)
 
 class Courses: 
     # students is a list of Student objects. students entrolled in the course
@@ -60,22 +71,20 @@ class Student:
             if grade in grade_point:
                 self.student_gpanum.append(grade_point[grade])
         return self.student_gpanum
-    
-        """
+    """
         total_gpa = 0
         student_cred = []
         for item in self.student_courses:
-            if item in (whereever we store the csv with the courses):
-                student_cred.append(csvfile.value[item]) # gives all the credits
+            if item in course_catalog:
+                student_cred.append(course_catalog.course_code[item]) # gives all the credits
 
         total_cred = sum(student_cred)
         
         for i in len(student_gpa):
             total_gpa = total_gpa + (student_gpa[i] * student_cred[i])
         total_gpa /= total_cred
-        """
-    
-    #-------------------- CANNOT CALCULATE GRADE WITHOUT CSV FILE INFORMATION (CREDITS) ------------------------
+    """
+    #-------------------- CANNOT CALCULATE GRADE WITHOUT CSV FILE INFORMATION (CREDITS) ------------------------ 
         
         
     def get_courses(self) -> list:
@@ -88,6 +97,11 @@ class Student:
     def get_course_info(self):
         return f"{self.name} has taken placeholder, and has these grades {self.student_grades}, these classes accumulate to placeholder credits."    
             
+class University:
+    def __init__(self, students: dict, courses: dict):
+        self.students = students
+        self.courses = courses
+
 ryan = Student("100101", "Ryan", {"CSE1010":"A"})
 ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
 print(ryan.calculate_gpa())
