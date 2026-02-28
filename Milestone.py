@@ -6,11 +6,8 @@ import csv
     
     - Make more test cases on the test_Case.py
 
-    - Look at the code for course_data_to_dict function and help with
-    organizing the university_data_to_dict (idk how to organize all that data)
+    - Look at the code for course_data_to_dict function
 
-    - university_data_to_dict function important for university class later and better
-    for organizing 
 """
 def course_data_to_dict(filename):
     course_dict = {}
@@ -25,16 +22,33 @@ def course_data_to_dict(filename):
         return course_dict
     
 def university_data_to_dict(filename):
-    university_dict = []
+    university_dict = {}
 
     with open(filename, "r", newline = '') as csv_file:
         my_reader = csv.DictReader(csv_file)
         for row in my_reader:
-            university_dict.append(row)
-        return university_dict
+            student_id = row['student_id'] # takes in the student_id and its row
+            name = row['name'] # gets the name of whats in that student_id's row
+            courses = row['courses'] # gets the course of whats in that student_id's row
+            courses_dict = {} # make a dictionary for the courses
+            course_pairs = courses.split(";")
+            for pair in course_pairs: 
+                course, grade = pair.split(":") #splits course as key and grade as value inside of the dict
+                courses_dict[course] = grade
+
+            university_dict[student_id] = { #when inputted a student_id gives out the name and courses which values are courses_dict
+                "name": name,
+                "courses": courses_dict
+        }
+    return university_dict
 
 course_data = course_data_to_dict('course_catalog.csv')
 university_data = university_data_to_dict('university_data.csv')
+print(university_data["STU00001"]) # -> is formatted like this 
+                                    #      'name': Student_1
+                                    #      'courses': {
+                                    #      'Math2010': 'C+ 
+                                    #       }
 
 class Courses: 
     # students is a list of Student objects. students entrolled in the course
