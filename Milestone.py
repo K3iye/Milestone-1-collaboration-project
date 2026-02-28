@@ -2,16 +2,39 @@ import csv
 
 #------------------------------ Things to ADD ---------------------------
 """
-    -Fix self.student courses or find another way to get that information throughout
-    the class to get course_info output and calculate gpa.
+    - Finish Task 3: Create the functions of the University Class
     
-    -Finish TASK 3 (pretty general cause we havent started yet)
+    - Make more test cases on the test_Case.py
+
+    - Look at the code for course_data_to_dict function and help with
+    organizing the university_data_to_dict (idk how to organize all that data)
+
+    - university_data_to_dict function important for university class later and better
+    for organizing 
+"""
+def course_data_to_dict(filename):
+    course_dict = {}
+
+    with open(filename, "r", newline = '') as csv_file:
+        my_reader = csv.reader(csv_file)
+        next(my_reader)
+        for row in my_reader:
+            course_code = str(row[0])
+            credits = int(row[1])
+            course_dict[course_code] = credits
+        return course_dict
     
-    -Make testing on the test_Case.py using unnittest
-    """
+def university_data_to_dict(filename):
+    university_dict = []
 
+    with open(filename, "r", newline = '') as csv_file:
+        my_reader = csv.DictReader(csv_file)
+        for row in my_reader:
+            university_dict.append(row)
+        return university_dict
 
-
+course_data = course_data_to_dict('course_catalog.csv')
+university_data = university_data_to_dict('university_data.csv')
 
 class Courses: 
     # students is a list of Student objects. students entrolled in the course
@@ -34,15 +57,21 @@ class Student:
         self.student_id = student_id
         self.name = name
         #courses is a dictionary of courses a student has taken Course: grade "A", "B+"
-        self.courses = courses 
+        self.courses = courses
+        self.student_courses = []
+        for key in self.courses:
+            self.student_courses.append(key)
     
     def enroll(self, course: str, grade: str):
         self.courses[course] = grade
+        self.student_courses.append(course)
         
     def update_grade(self,course: str,grade: str):
         self.courses[course] = grade
     
     def calculate_gpa(self):
+        total_gpa = 0
+        student_cred = []
         self.student_grades = []
         self.student_gpanum = []
         grade_point = {
@@ -59,36 +88,36 @@ class Student:
         for grade in self.student_grades:    
             if grade in grade_point:
                 self.student_gpanum.append(grade_point[grade])
-        return self.student_gpanum
     
-        """
-        total_gpa = 0
-        student_cred = []
         for item in self.student_courses:
-            if item in (whereever we store the csv with the courses):
-                student_cred.append(csvfile.value[item]) # gives all the credits
+            if item in course_data:
+                student_cred.append(course_data[item]) # gives all the credits
 
-        total_cred = sum(student_cred)
+        self.total_cred = sum(student_cred)
         
-        for i in len(student_gpa):
-            total_gpa = total_gpa + (student_gpa[i] * student_cred[i])
-        total_gpa /= total_cred
-        """
+        for i in range(len(self.student_gpanum)):
+            total_gpa = total_gpa + (self.student_gpanum[i] * student_cred[i])
+        total_gpa /= self.total_cred
+        return f"{total_gpa:.2f}"
     
-    #-------------------- CANNOT CALCULATE GRADE WITHOUT CSV FILE INFORMATION (CREDITS) ------------------------
-        
-        
-    def get_courses(self) -> list:
-        self.student_courses = []
-        for key in self.courses:
-            self.student_courses.append(key)
+    #-------------------- CANNOT CALCULATE GRADE WITHOUT CSV FILE INFORMATION (CREDITS) ------------------------ 
+    def get_courses(self):
         return self.student_courses
     
-    
     def get_course_info(self):
-        return f"{self.name} has taken placeholder, and has these grades {self.student_grades}, these classes accumulate to placeholder credits."    
-            
-ryan = Student("100101", "Ryan", {"CSE1010":"A"})
+        return f"{self.name} has taken {self.student_courses}, and has these grades {self.student_grades}, these classes accumulate to {self.total_cred} credits."    
+    
+class University:
+    def __init__(self, students: dict, courses: dict):
+        self.students = students
+        self.courses = courses
+
+ryan = Student("100101", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
 ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
+ryan.enroll("CSE3100", "B-")
 print(ryan.calculate_gpa())
+print(ryan.get_courses())
 print(ryan.get_course_info())
+
+harry = Student("304405", "Harry", {"CHEM1010": "A", "ENG1010": "A-", "BIO1010": "A"})
+print(harry.calculate_gpa())
