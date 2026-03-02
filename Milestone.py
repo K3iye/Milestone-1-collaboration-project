@@ -1,13 +1,12 @@
 import csv
 
 #------------------------------ Things to ADD ---------------------------
-"""
-    - Finish Task 3: Create the functions of the University Class
-    
-    - Make more test cases on the test_Case.py
+""" 
+    - Make test cases for course class and Student class
 
     - Look at the code for course_data_to_dict function
 
+    - Make Error handling for the specific things stated on the Milestone pdf
 """
 def course_data_to_dict(filename):
     course_dict = {}
@@ -44,7 +43,7 @@ def university_data_to_dict(filename):
 
 course_data = course_data_to_dict('course_catalog.csv')
 university_data = university_data_to_dict('university_data.csv')
-print(university_data["STU00001"]) # -> is formatted like this 
+#print(university_data["STU00001"]) # -> is formatted like this 
                                     #      'name': Student_1
                                     #      'courses': {
                                     #      'Math2010': 'C+ 
@@ -114,24 +113,80 @@ class Student:
         total_gpa /= self.total_cred
         return f"{total_gpa:.2f}"
     
-    #-------------------- CANNOT CALCULATE GRADE WITHOUT CSV FILE INFORMATION (CREDITS) ------------------------ 
     def get_courses(self):
         return self.student_courses
     
     def get_course_info(self):
-        return f"{self.name} has taken {self.student_courses}, and has these grades {self.student_grades}, these classes accumulate to {self.total_cred} credits."    
-    
+        return f"{self.name} has taken {self.student_courses}, and has these grades {self.student_grades}, these classes accumulate to {self.total_cred} credits."   
+
 class University:
-    def __init__(self, students: dict, courses: dict):
-        self.students = students
-        self.courses = courses
+    def __init__(self):
+        # Student Object
+        self.students = {}
+        
+        #Course Object
+        self.courses = {}
+        
+    def add_course(self, course_code: str, credits: int) -> Courses:  # Course object 
+        if course_code in self.courses:
+            return self.courses[course_code]
+        
+        new_course = Courses(course_code, credits, [])
+        self.courses[course_code] = new_course
+        return new_course
 
-ryan = Student("100101", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
-ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
-ryan.enroll("CSE3100", "B-")
-print(ryan.calculate_gpa())
-print(ryan.get_courses())
-print(ryan.get_course_info())
+    def add_student(self, student_id: str, name: str) -> Student: # Student object 
+        if student_id in self.students:
+            return self.students[student_id]
+        
+        new_student = Student(student_id, name, {})
+        self.students[student_id] = new_student
+        return new_student
+    
+    def get_student(self, student_id: str) -> Student | None: #Student Object or None
+        if student_id in self.students:
+            return self.students[student_id]
+        return None
 
-harry = Student("304405", "Harry", {"CHEM1010": "A", "ENG1010": "A-", "BIO1010": "A"})
-print(harry.calculate_gpa())
+    def get_course(self, course_code: str) -> Courses | None: # Course object or None
+        if course_code in self.courses:
+            return self.courses[course_code]
+        return None
+    
+    def get_course_enrollment(self, course_code: str) -> int:
+        student_count = self.courses[course_code].get_student_count()
+        return student_count
+    
+    def get_students_in_course(self, course_code: str) -> list[Student] | None: # List of student objects or None if course doesn't exist
+        if course_code in self.courses:
+            return self.courses[course_code].students
+        return None
+    
+# ---------------------------------- SIMPLE TESTS -----------------------------------                    
+# ryan = Student("100101", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
+# ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
+# ryan.enroll("CSE3100", "B-")
+# print(ryan.calculate_gpa())
+# print(ryan.get_courses())
+# print(ryan.get_course_info())
+
+# harry = Student("304405", "Harry", {"CHEM1010": "A", "ENG1010": "A-", "BIO1010": "A"})
+# print(harry.calculate_gpa()
+
+Uconn = University()
+
+course = Uconn.add_course("CSE2050", 2)
+Student1 = Uconn.add_student("STU10000", "Johnny")
+Student2 = Uconn.add_student("STU10001", "Ryan")
+
+course.add_student(Student1)
+course.add_student(Student2)
+students = Uconn.get_students_in_course("CSE2050")
+# student = Uconn.get_student("STU10000")
+
+
+# print(course.credits)
+# print(Uconn.students)
+# print(student.name)
+# print(course.get_student_count())
+# print(students[0].name)
