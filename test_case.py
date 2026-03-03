@@ -2,11 +2,23 @@ import unittest
 from Milestone import Courses, Student, University
 
 class Test_Course(unittest.TestCase):
+    """
+    Created by: Ryan
+    
+    Tests for the University class methods verifies object creation,
+    adding/retrieving students and courses, duplicates, and enrollment functions
+    """
     def test_course_creation(self):
+        """
+        Test that the course object is created with the right type
+        """
         ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
         self.assertEqual(type(ryan_courses), Courses)
 
     def test_studentadd(self):
+        """
+        Test the add student object works and that the student is in the list of students in that course
+        """
         michael_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
         michael_courses.add_student("Mobeen")
         self.assertIn("Mobeen", michael_courses.students)
@@ -19,27 +31,49 @@ class Test_Course(unittest.TestCase):
         with self.assertRaises(ValueError):
             ryan_courses.add_student("Johnny")
     
-    def test_studentcount(self):     
+    def test_studentcount(self):  
+        """
+        Test the get student count function works
+        """   
         Ryan = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
         self.assertEqual(Ryan.get_student_count(), 3)
 
 class Test_Student(unittest.TestCase):
+    """
+    Created by: Ryan
+    
+    Tests for the Student class methods verifies student creation, enrolling, testing
+    gpa, and getting student courses
+    """
     def test_student_creation(self):
+        """
+        Test that the student object is created with the right type
+        """
         ryan = Student("STU20000", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
         self.assertEqual(type(ryan), Student)
 
     def test_enroll(self):
+        """
+        Test to see if the enroll function works verifying that the course is in the ryan student
+        class list of student courses
+        """
         ryan = Student("STU20000", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
         ryan.enroll("CSE3100", "B-")
         self.assertIn("CSE3100", ryan.student_courses)
     
     def test_gpa(self):
+        """
+        Test to see if the gpa calculator is accurately working
+        """
         ryan = Student("STU20000", "Ryan", {"CSE1010":"A"})
         self.assertEqual(ryan.calculate_gpa(), '4.00')
     
     def test_get_studentcourses(self):
+        """
+        Test to verify that the get course function works
+        """
         ryan = Student("STU20000", "Ryan", {"CSE1010":"A"})
-        self.assertEqual(ryan.student_courses, ["CSE1010"])
+        self.assertEqual(ryan.get_courses(), ["CSE1010"])
 
 class Test_University(unittest.TestCase):
     """
