@@ -64,7 +64,7 @@ university_data = university_data_to_dict('university_data.csv')
 
 class Courses: 
     """
-    By: Ryan
+    By: Johnny
     
     This represents a university course. It stores the course_code,
     number of credits, and a list of enrolled Student objects.
