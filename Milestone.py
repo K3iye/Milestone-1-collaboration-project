@@ -58,15 +58,24 @@ class Courses:
     
     # Supposed to add a Student object to the course roster    
     def add_student(self, student):
+        if student in self.students:
+            raise ValueError("Student already in the course")
         self.students.append(student)
    
    # returns the number of students currently enrolled 
     def get_student_count(self) -> int:
         return len(self.students)
     
-
 class Student:
     def __init__(self,student_id: str, name: str, courses: dict):
+        if len(student_id) != 8: 
+            raise ValueError("Student_id isn't equal to 8 characters")
+        if student_id[0:3] != "STU":
+            raise ValueError("Student_id does not start with STU")
+        for i in student_id[3:]:
+            if i < "0" or i > "9":
+                raise ValueError("Student_id doesn't include numbers after the STU character")
+            
         self.student_id = student_id
         self.name = name
         #courses is a dictionary of courses a student has taken Course: grade "A", "B+"
@@ -74,20 +83,7 @@ class Student:
         self.student_courses = []
         for key in self.courses:
             self.student_courses.append(key)
-    
-    def enroll(self, course: str, grade: str):
-        self.courses[course] = grade
-        self.student_courses.append(course)
-        
-    def update_grade(self,course: str,grade: str):
-        self.courses[course] = grade
-    
-    def calculate_gpa(self):
-        total_gpa = 0
-        student_cred = []
-        self.student_grades = []
-        self.student_gpanum = []
-        grade_point = {
+        self.grade_point = {
         'A' : 4.0, 'A-' : 3.7,
         'B+': 3.3, 'B' : 3.0, 'B-' : 2.7,
         'C+': 2.3, 'C' : 2.0, 'C-' : 1.7,
@@ -95,12 +91,44 @@ class Student:
         'F' : 0.0
         }
     
+    def enroll(self, course: str, grade: str):
+        if grade not in self.grade_point:
+            raise ValueError("Grade does not exist in grade point")
+        if course in self.student_courses:
+            raise ValueError(f"The student is already enrolled in {course}")
+        self.courses[course] = grade
+        self.student_courses.append(course)
+        
+    def update_grade(self,course: str,grade: str):
+        if grade not in self.grade_point:
+            raise ValueError("Grade does not exist in grade point")
+        if course not in self.courses:
+            raise ValueError("Course is not in the catalog")
+        self.courses[course] = grade
+    
+    def calculate_gpa(self):
+        total_gpa = 0
+        student_cred = []
+        self.student_grades = []
+        self.student_gpanum = []
+
+        """
+        Created by Ryan:
+        This loop appends the values of the courses to student_grades
+        """
         for value in self.courses.values():
             self.student_grades.append(value)
+
+        """
+        Created by Ryan:
+        This loop finds for every grade in the list of student_grades, if
+        grade is in grade_point then it appends the grade num of that grade to
+        a new list of gpa numbers.
+        """
         
         for grade in self.student_grades:    
-            if grade in grade_point:
-                self.student_gpanum.append(grade_point[grade])
+            if grade in self.grade_point:
+                self.student_gpanum.append(self.grade_point[grade])
     
         for item in self.student_courses:
             if item in course_data:
@@ -110,8 +138,18 @@ class Student:
         
         for i in range(len(self.student_gpanum)):
             total_gpa = total_gpa + (self.student_gpanum[i] * student_cred[i])
-        total_gpa /= self.total_cred
-        return f"{total_gpa:.2f}"
+
+        """
+        Created by Ryan:
+        This verifies that the total credits isn't zero and if it is will return
+        the gpa as 0. Else it returns the total gpa divided by the total credits
+        """
+
+        if self.total_cred == 0:
+            return 0.00
+        else:
+            total_gpa /= self.total_cred
+            return f"{total_gpa:.2f}"
     
     def get_courses(self):
         return self.student_courses
@@ -129,6 +167,8 @@ class University:
         
     def add_course(self, course_code: str, credits: int) -> Courses:  # Course object 
         if course_code in self.courses:
+            raise ValueError("Course already exists")
+        if course_code in self.courses:
             return self.courses[course_code]
         
         new_course = Courses(course_code, credits, [])
@@ -137,21 +177,24 @@ class University:
 
     def add_student(self, student_id: str, name: str) -> Student: # Student object 
         if student_id in self.students:
+            raise ValueError("Student already exists")
+        
+        if student_id in self.students:
             return self.students[student_id]
         
         new_student = Student(student_id, name, {})
         self.students[student_id] = new_student
         return new_student
     
-    def get_student(self, student_id: str) -> Student | None: #Student Object or None
+    def get_student(self, student_id: str) -> Student: #Student Object
         if student_id in self.students:
             return self.students[student_id]
-        return None
+        raise ValueError
 
-    def get_course(self, course_code: str) -> Courses | None: # Course object or None
+    def get_course(self, course_code: str) -> Courses: # Course object
         if course_code in self.courses:
             return self.courses[course_code]
-        return None
+        raise ValueError
     
     def get_course_enrollment(self, course_code: str) -> int:
         student_count = self.courses[course_code].get_student_count()
@@ -169,10 +212,8 @@ class University:
 # print(ryan.calculate_gpa())
 # print(ryan.get_courses())
 # print(ryan.get_course_info())
-
 # harry = Student("304405", "Harry", {"CHEM1010": "A", "ENG1010": "A-", "BIO1010": "A"})
 # print(harry.calculate_gpa()
-
 Uconn = University()
 
 course = Uconn.add_course("CSE2050", 2)
@@ -182,11 +223,12 @@ Student2 = Uconn.add_student("STU10001", "Ryan")
 course.add_student(Student1)
 course.add_student(Student2)
 students = Uconn.get_students_in_course("CSE2050")
+
+student = Uconn.get_student("STU10000")
 # student = Uconn.get_student("STU10000")
-
-
 # print(course.credits)
 # print(Uconn.students)
 # print(student.name)
 # print(course.get_student_count())
 # print(students[0].name)
+
