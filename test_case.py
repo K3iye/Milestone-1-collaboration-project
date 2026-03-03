@@ -1,6 +1,46 @@
 import unittest
 from Milestone import Courses, Student, University
 
+class Test_Course(unittest.TestCase):
+    def test_course_creation(self):
+        ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
+        self.assertEqual(type(ryan_courses), Courses)
+
+    def test_studentadd(self):
+        michael_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
+        michael_courses.add_student("Mobeen")
+        self.assertIn("Mobeen", michael_courses.students)
+    
+    def test_duplicates(self):
+        """
+        Test duplicate values
+        """
+        ryan_courses = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
+        with self.assertRaises(ValueError):
+            ryan_courses.add_student("Johnny")
+    
+    def test_studentcount(self):     
+        Ryan = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
+        self.assertEqual(Ryan.get_student_count(), 3)
+
+class Test_Student(unittest.TestCase):
+    def test_student_creation(self):
+        ryan = Student("STU20000", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
+        self.assertEqual(type(ryan), Student)
+
+    def test_enroll(self):
+        ryan = Student("STU20000", "Ryan", {"CSE1010":"A", "CSE2050": "B+"})
+        ryan.enroll("CSE3100", "B-")
+        self.assertIn("CSE3100", ryan.student_courses)
+    
+    def test_gpa(self):
+        ryan = Student("STU20000", "Ryan", {"CSE1010":"A"})
+        self.assertEqual(ryan.calculate_gpa(), '4.00')
+    
+    def test_get_studentcourses(self):
+        ryan = Student("STU20000", "Ryan", {"CSE1010":"A"})
+        self.assertEqual(ryan.student_courses, ["CSE1010"])
+
 class Test_University(unittest.TestCase):
     """
     Created by: Johnny
@@ -27,6 +67,16 @@ class Test_University(unittest.TestCase):
         
         self.assertIn("CSE2050", uconn.courses) # Checks if the string is in the courses dict
         self.assertEqual(course.credits, 2)
+    
+    def test_duplicate_course(self):
+        """
+        Test duplicate course values
+        """
+        uconn = University()
+        course = uconn.add_course("CSE2050", 2)
+
+        with self.assertRaises(ValueError):
+            course2 = uconn.add_course("CSE2050", 2)
 
     def test_addstudent(self):
         """
@@ -37,6 +87,16 @@ class Test_University(unittest.TestCase):
         
         self.assertIn("STU00201", uconn.students)
         self.assertEqual(student.name, "Johnny")
+    
+    def test_duplicatestudent(self): 
+        """
+        Test duplicate student values
+        """
+        uconn = University()
+        student = uconn.add_student("STU00201", "Johnny")
+
+        with self.assertRaises(ValueError):
+            student2 = uconn.add_student("STU00201", "Johnny")
 
     def test_getstudent(self):
         """
@@ -47,7 +107,19 @@ class Test_University(unittest.TestCase):
         student = uconn.get_student("STU00201")
         
         self.assertEqual(student.name, "Johnny")
-        self.assertEqual(uconn.get_student("STU10000"), None)
+
+        with self.assertRaises(ValueError):
+            uconn.get_student("STU10000")
+
+    def test_student_nonexistent(self):
+        """
+        Test if student is in the roster else raise error
+        """
+        uconn = University()
+        uconn.add_student("STU00201", "Johnny")
+
+        with self.assertRaises(ValueError):
+            student = uconn.get_student("202")
 
     def test_getcourse(self):
         """
@@ -59,8 +131,16 @@ class Test_University(unittest.TestCase):
         
         self.assertEqual(course.course, "CSE2050")
         self.assertEqual(course.credits, 2)
-        self.assertEqual(uconn.get_course("CSE1010"), None)
-        
+
+    def test_course_nonexistent(self):
+        """
+        Test if course is in the roster else raise error
+        """
+        uconn = University()
+        uconn.add_course("CSE2050", 2)
+        with self.assertRaises(ValueError):
+            uconn.get_course("CSE1010")
+
     def test_get_course_enrollment(self):
         """
         Test that enrollment count shows the number of students added.
@@ -89,11 +169,6 @@ class Test_University(unittest.TestCase):
         self.assertEqual(students[0].name, "Johnny")
         self.assertEqual(students[1].name, "Ryan")
         self.assertEqual(uconn.get_students_in_course("CSE1010"), None)
-
-class Test_Course(unittest.TestCase):
-    def test_courses(self):     
-        Ryan = Courses("CSE1010", 3, ["Johnny", "Michael", "Ryan"])
-        self.assertEqual(Ryan.get_student_count(), 3)
 
 if __name__ == '__main__':
     unittest.main()
